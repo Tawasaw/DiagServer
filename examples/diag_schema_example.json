@@ -2,68 +2,32 @@
   "port": 5599,
   "strict": true,
   "max_rate_hz": 100,
-  "graphs": [
-    {
-      "id": "drive-power",
+  "groups": {
+    "drive-power": {
       "title": "Drive Power",
-      "series": [
-        "front_left_power"
-      ]
+      "fields": {
+        "front_left_power": {}
+      }
     },
-    {
-      "id": "imu",
+    "imu": {
       "title": "IMU (deg)",
-      "series": [
-        "imu_yaw_deg"
-      ]
+      "fields": {
+        "imu_yaw_deg": { "unit": "deg" }
+      }
     },
-    {
-      "id": "live-config",
+    "live-config": {
       "title": "Live Config",
-      "series": [
-        "shooter_kp",
-        "turret_lock_gain"
-      ]
+      "fields": {
+        "shooter_kp": {},
+        "turret_lock_gain": {}
+      }
+    },
+    "metadata": {
+      "graph": false,
+      "fields": {
+        "run_id": { "type": "long", "unit": "s" },
+        "robot_ts_ms": { "type": "long", "unit": "ms" }
+      }
     }
-  ],
-  "subscribe": [
-    "run_id",
-    "robot_ts_ms",
-    "front_left_power",
-    "imu_yaw_deg",
-    "shooter_kp",
-    "turret_lock_gain"
-  ],
-  "fields": [
-    {
-      "name": "run_id",
-      "type": "long",
-      "unit": "s"
-    },
-    {
-      "name": "robot_ts_ms",
-      "type": "long",
-      "unit": "ms"
-    },
-    {
-      "name": "front_left_power",
-      "type": "double",
-      "unit": ""
-    },
-    {
-      "name": "imu_yaw_deg",
-      "type": "double",
-      "unit": "deg"
-    },
-    {
-      "name": "shooter_kp",
-      "type": "double",
-      "unit": ""
-    },
-    {
-      "name": "turret_lock_gain",
-      "type": "double",
-      "unit": ""
-    }
-  ]
+  }
 }

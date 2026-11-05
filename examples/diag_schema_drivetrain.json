@@ -2,211 +2,65 @@
   "port": 5599,
   "strict": true,
   "max_rate_hz": 100,
-  "graphs": [
-    {
-      "id": "drive-power",
+  "groups": {
+    "drive-power": {
       "title": "Drive Power",
-      "series": [
-        "front_left_power",
-        "front_right_power",
-        "back_left_power",
-        "back_right_power"
-      ]
+      "fields": {
+        "front_left_power": {},
+        "front_right_power": {},
+        "back_left_power": {},
+        "back_right_power": {}
+      }
     },
-    {
-      "id": "drive-encoder",
+    "drive-encoder": {
       "title": "Drive Encoders",
-      "series": [
-        "front_left_position",
-        "front_right_position",
-        "back_left_position",
-        "back_right_position"
-      ]
+      "fields": {
+        "front_left_position": { "type": "long", "unit": "ticks" },
+        "front_right_position": { "type": "long", "unit": "ticks" },
+        "back_left_position": { "type": "long", "unit": "ticks" },
+        "back_right_position": { "type": "long", "unit": "ticks" }
+      }
     },
-    {
-      "id": "imu",
+    "imu": {
       "title": "IMU (deg)",
-      "series": [
-        "imu_yaw_deg",
-        "imu_pitch_deg",
-        "imu_roll_deg"
-      ]
+      "fields": {
+        "imu_yaw_deg": { "unit": "deg" },
+        "imu_pitch_deg": { "unit": "deg" },
+        "imu_roll_deg": { "unit": "deg" }
+      }
     },
-    {
-      "id": "driver-input",
+    "driver-input": {
       "title": "Driver Input",
-      "series": [
-        "drive_forward",
-        "drive_right",
-        "drive_rotate"
-      ]
+      "fields": {
+        "drive_forward": {},
+        "drive_right": {},
+        "drive_rotate": {}
+      }
     },
-    {
-      "id": "battery-hub-power",
+    "battery-hub-power": {
       "title": "Battery / Hub Power",
-      "series": [
-        "battery_voltage",
-        "hub_input_volts",
-        "hub_current_amps"
-      ]
+      "fields": {
+        "battery_voltage": { "unit": "V" },
+        "hub_input_volts": { "unit": "V" },
+        "hub_current_amps": { "unit": "A" }
+      }
     },
-    {
-      "id": "motor-current",
+    "motor-current": {
       "title": "Motor Current",
-      "series": [
-        "front_left_current_amps",
-        "front_right_current_amps",
-        "back_left_current_amps",
-        "back_right_current_amps"
-      ]
+      "fields": {
+        "front_left_current_amps": { "unit": "A" },
+        "front_right_current_amps": { "unit": "A" },
+        "back_left_current_amps": { "unit": "A" },
+        "back_right_current_amps": { "unit": "A" }
+      }
+    },
+    "metadata": {
+      "graph": false,
+      "fields": {
+        "run_id": { "type": "long", "unit": "s" },
+        "robot_ts_ms": { "type": "long", "unit": "ms" },
+        "field_relative": { "type": "long" }
+      }
     }
-  ],
-  "subscribe": [
-    "run_id",
-    "robot_ts_ms",
-    "front_left_power",
-    "front_right_power",
-    "back_left_power",
-    "back_right_power",
-    "front_left_position",
-    "front_right_position",
-    "back_left_position",
-    "back_right_position",
-    "imu_yaw_deg",
-    "imu_pitch_deg",
-    "imu_roll_deg",
-    "drive_forward",
-    "drive_right",
-    "drive_rotate",
-    "field_relative",
-    "battery_voltage",
-    "hub_input_volts",
-    "hub_current_amps",
-    "front_left_current_amps",
-    "front_right_current_amps",
-    "back_left_current_amps",
-    "back_right_current_amps"
-  ],
-  "fields": [
-    {
-      "name": "run_id",
-      "type": "long",
-      "unit": "s"
-    },
-    {
-      "name": "robot_ts_ms",
-      "type": "long",
-      "unit": "ms"
-    },
-    {
-      "name": "front_left_power",
-      "type": "double",
-      "unit": ""
-    },
-    {
-      "name": "front_right_power",
-      "type": "double",
-      "unit": ""
-    },
-    {
-      "name": "back_left_power",
-      "type": "double",
-      "unit": ""
-    },
-    {
-      "name": "back_right_power",
-      "type": "double",
-      "unit": ""
-    },
-    {
-      "name": "front_left_position",
-      "type": "long",
-      "unit": "ticks"
-    },
-    {
-      "name": "front_right_position",
-      "type": "long",
-      "unit": "ticks"
-    },
-    {
-      "name": "back_left_position",
-      "type": "long",
-      "unit": "ticks"
-    },
-    {
-      "name": "back_right_position",
-      "type": "long",
-      "unit": "ticks"
-    },
-    {
-      "name": "imu_yaw_deg",
-      "type": "double",
-      "unit": "deg"
-    },
-    {
-      "name": "imu_pitch_deg",
-      "type": "double",
-      "unit": "deg"
-    },
-    {
-      "name": "imu_roll_deg",
-      "type": "double",
-      "unit": "deg"
-    },
-    {
-      "name": "drive_forward",
-      "type": "double",
-      "unit": ""
-    },
-    {
-      "name": "drive_right",
-      "type": "double",
-      "unit": ""
-    },
-    {
-      "name": "drive_rotate",
-      "type": "double",
-      "unit": ""
-    },
-    {
-      "name": "field_relative",
-      "type": "long",
-      "unit": ""
-    },
-    {
-      "name": "battery_voltage",
-      "type": "double",
-      "unit": "V"
-    },
-    {
-      "name": "hub_input_volts",
-      "type": "double",
-      "unit": "V"
-    },
-    {
-      "name": "hub_current_amps",
-      "type": "double",
-      "unit": "A"
-    },
-    {
-      "name": "front_left_current_amps",
-      "type": "double",
-      "unit": "A"
-    },
-    {
-      "name": "front_right_current_amps",
-      "type": "double",
-      "unit": "A"
-    },
-    {
-      "name": "back_left_current_amps",
-      "type": "double",
-      "unit": "A"
-    },
-    {
-      "name": "back_right_current_amps",
-      "type": "double",
-      "unit": "A"
-    }
-  ]
+  }
 }
