@@ -50,13 +50,15 @@ public class DiagServerTest {
             writer.flush();
             assertEquals("FIELDS status,string,", reader.readLine());
 
-            writer.write("SUB ALL rate=100\n");
-            writer.flush();
-            assertEquals("OK", reader.readLine());
-
+            // Install the sample before subscribing: a subscribed client may
+            // receive the latest snapshot immediately after the OK response.
             DiagSnapshotBuilder builder = new DiagSnapshotBuilder(1);
             builder.set(0, "a,b\nc");
             server.setSnapshot(builder.build());
+
+            writer.write("SUB ALL rate=100\n");
+            writer.flush();
+            assertEquals("OK", reader.readLine());
 
             assertEquals("DATA a;b c", reader.readLine());
         } finally {
