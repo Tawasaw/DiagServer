@@ -1,0 +1,16 @@
+{
+  "port": 5599,
+  "strict": true,
+  "max_rate_hz": 50,
+  "groups": {
+    "led": {
+      "title": "LED color position (0-1)",
+      "fields": {
+        "ledcolor": {
+          "type": "double",
+          "unit": ""
+        }
+      }
+    }
+  }
+}

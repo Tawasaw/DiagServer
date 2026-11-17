@@ -93,3 +93,45 @@ source of truth via the dashboard's `--schema` argument. Start a fresh recording
 when migrating: CSV column order can change. Existing CSVs are read by column name.
 DiagServer 0.2.0 and the grouped-schema dashboard must be deployed together with
 the converted robot schema. The old JSON format is not supported.
+
+## Student example: RGB LED color with live tuning
+
+- [LedColorTest_diag.java](examples/LedColorTest_diag.java): minimal FTC OpMode
+  using `SchemaDiagBus` and one live `diag_ledcolor` control.
+- [led_color_test_diag.json](examples/led_color_test_diag.json): matching schema.
+
+Copy the Java file to `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`
+and the JSON file to `TeamCode/src/main/assets/configs/` in your FTC project.
+Use the library dependency above. Configure the goBILDA RGB Indicator Light as a
+standard **Servo** named **rgb_indicator** on its hub servo port. Standard Servo
+uses the 600–2400 microsecond range matching the indicator's FTC position chart.
+
+Build/install the robot app, select **LED Color Test Diag** in **Student**, and
+press INIT, then START. INIT starts the diagnostic server; START begins setting
+the LED color and publishing the position. No gamepad is needed.
+
+Connect the laptop to the robot Wi-Fi. From the DiagDashboard repository, run:
+
+```sh
+pixi run python diagdashboard.py \
+  --schema /path/to/DiagServer/examples/led_color_test_diag.json \
+  --robot-host 192.168.43.1
+```
+
+Replace the schema path and robot IP as needed. Open http://127.0.0.1:8050 and
+edit **diag_ledcolor** in the live config controls, then apply the value. The
+server listens on TCP **5599**. The graph displays **ledcolor**, the value
+commanded to the LED. Use the same JSON schema on robot and dashboard.
+
+| Position | Color |
+| --- | --- |
+| 0.000 | Off |
+| 0.278 | Red |
+| 0.500 | Green (default) |
+| 0.611 | Blue |
+| 1.000 | White |
+
+`registerDouble()` rejects values outside 0–1. `diag_ledcolor` is `volatile` because
+the diagnostics connection thread changes it while the OpMode reads it. The loop
+uses a local copy so the LED command and published value match. This is the
+commanded value, not measured light output. STOP closes diagnostics.
