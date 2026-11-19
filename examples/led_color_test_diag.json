@@ -3,6 +3,19 @@
   "strict": true,
   "max_rate_hz": 50,
   "groups": {
+    "metadata": {
+      "graph": false,
+      "fields": {
+        "run_id": {
+          "type": "long",
+          "unit": "s"
+        },
+        "robot_ts_ms": {
+          "type": "long",
+          "unit": "ms"
+        }
+      }
+    },
     "led": {
       "title": "LED color position (0-1)",
       "fields": {

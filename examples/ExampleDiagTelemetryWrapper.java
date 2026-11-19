@@ -43,13 +43,17 @@ public class ExampleDiagTelemetryWrapper extends LinearOpMode {
         diagTelemetry = new DiagTelemetry(telemetry, diagBus);
         telemetry = diagTelemetry;
 
+        final long runId = System.currentTimeMillis() / 1000L;
+        telemetry.addData("run_id", "%.0f", (double) runId);
+        telemetry.addData("robot_ts_ms", "%.0f", (double) System.currentTimeMillis());
         telemetry.addLine("Ready for start");
         telemetry.update();
         waitForStart();
 
         while (opModeIsActive()) {
             // Standard SDK telemetry calls (also mirrored to the schema bus).
-            telemetry.addData("robot_ts_ms", System.currentTimeMillis());
+            telemetry.addData("run_id", "%.0f", (double) runId);
+            telemetry.addData("robot_ts_ms", "%.0f", (double) System.currentTimeMillis());
             telemetry.addData("front_left_power", "%.3f", frontLeft.getPower());
             telemetry.addData("imu_yaw_deg", "%.2f",
                     imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));

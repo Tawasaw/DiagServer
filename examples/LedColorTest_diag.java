@@ -17,6 +17,7 @@ public class LedColorTest_diag extends LinearOpMode {
         Servo led = hardwareMap.get(Servo.class, "rgb_indicator");
 
         // DIAG: init diag to null
+        final long runId = System.currentTimeMillis() / 1000L;
         SchemaDiagBus diag = null;
 
         try {
@@ -41,6 +42,8 @@ public class LedColorTest_diag extends LinearOpMode {
                 // send diagnostics to clients
                 if (ENABLE_DIAGNOSTICS) {
                     diag.begin();
+                    diag.put("run_id", runId);
+                    diag.put("robot_ts_ms", System.currentTimeMillis());
                     diag.put("ledcolor", ledcolor, "%.3f");
                     diag.publish(); // DIAG: send all .put()s data to laptop.
                 }
