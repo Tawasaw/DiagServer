@@ -46,6 +46,17 @@ public class DiagServerTest {
                         new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 BufferedWriter writer =
                         new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))) {
+            socket.setSoTimeout(2000);
+            writer.write("HOWDY\n");
+            writer.flush();
+            String response = reader.readLine();
+            org.junit.Assert.assertTrue(response.startsWith("DESCRIBE "));
+            org.json.JSONObject descriptor = new org.json.JSONObject(response.substring(9));
+            assertEquals(2, descriptor.getInt("protocol_version"));
+            assertEquals("status", descriptor.getJSONArray("fields").getJSONObject(0).getString("name"));
+            assertEquals(0, descriptor.getJSONArray("controls").length());
+            assertEquals(0, descriptor.getJSONArray("cameras").length());
+
             writer.write("FIELDS\n");
             writer.flush();
             assertEquals("FIELDS status,string,", reader.readLine());

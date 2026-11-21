@@ -29,6 +29,11 @@ public class SchemaDiagService implements AutoCloseable {
      */
     public SchemaDiagService(
             HardwareMap hardwareMap, String schemaPathOrJson, ConfigRegistry configRegistry) {
+        this(hardwareMap, schemaPathOrJson, configRegistry, null);
+    }
+
+    SchemaDiagService(HardwareMap hardwareMap, String schemaPathOrJson,
+            ConfigRegistry configRegistry, LimelightTunnelManager camera) {
         // Load the schema (allowed fields + port) from JSON.
         this.schema = DiagSchema.fromConfig(hardwareMap, schemaPathOrJson);
         // Build a fixed list of fields so every data line matches the same order.
@@ -40,7 +45,7 @@ public class SchemaDiagService implements AutoCloseable {
         // Start the TCP server that the laptop will connect to.
         this.server =
                 new DiagServer(
-                        schema.getPort(), catalog, configRegistry, schema.getMaxRateHz());
+                        schema.getPort(), catalog, configRegistry, schema.getMaxRateHz(), schema, camera);
     }
 
     /**

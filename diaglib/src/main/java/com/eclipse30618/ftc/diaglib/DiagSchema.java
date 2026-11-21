@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 /**
@@ -27,7 +28,13 @@ public class DiagSchema {
     private final List<SchemaField> fields;
     private final Map<String, Integer> indexByName;
 
-    private DiagSchema(int port, boolean strict, int maxRateHz, List<SchemaField> fields) {
+    private final JSONArray graphs;
+
+    JSONArray getGraphs() { return graphs; }
+
+    private DiagSchema(int port, boolean strict, int maxRateHz, List<SchemaField> fields,
+            JSONArray graphs) {
+        this.graphs = graphs;
         this.port = port;
         this.strict = strict;
         this.maxRateHz = maxRateHz;
@@ -57,6 +64,7 @@ public class DiagSchema {
         if (groups == null || groups.length() == 0) throw new IllegalArgumentException("Schema requires nonempty groups");
         java.util.Map<String, SchemaField> definitions = new java.util.TreeMap<>();
         java.util.Set<String> references = new java.util.TreeSet<>();
+        JSONArray graphs = new JSONArray();
         java.util.Iterator<String> groupKeys = groups.keys();
         while (groupKeys.hasNext()) {
             String id = groupKeys.next();
@@ -67,9 +75,11 @@ public class DiagSchema {
             if (group.has("title") && !(group.opt("title") instanceof String)) throw new IllegalArgumentException("title must be text: " + id);
             JSONObject entries = group.optJSONObject("fields");
             if (entries == null || entries.length() == 0) throw new IllegalArgumentException("Group requires fields: " + id);
+            JSONArray series = new JSONArray();
             java.util.Iterator<String> names = entries.keys();
             while (names.hasNext()) {
                 String name = names.next();
+                series.put(name);
                 JSONObject field = entries.optJSONObject(name);
                 if (name.isEmpty() || name.matches("(?s).*[;,\\r\\n].*") || field == null) throw new IllegalArgumentException("Invalid field: " + name);
                 if (field.has("ref")) {
@@ -84,12 +94,20 @@ public class DiagSchema {
                 if (definitions.containsKey(name)) throw new IllegalArgumentException("Duplicate field definition: " + name);
                 definitions.put(name, new SchemaField(name, (String) type, (String) unit));
             }
+            if (group.optBoolean("graph", true)) {
+                try {
+                    graphs.put(new JSONObject().put("id", id)
+                            .put("title", group.optString("title", id)).put("series", series));
+                } catch (org.json.JSONException e) {
+                    throw new IllegalArgumentException("Invalid graph: " + id, e);
+                }
+            }
         }
         references.removeAll(definitions.keySet());
         if (!references.isEmpty()) throw new IllegalArgumentException("Undefined field references: " + references);
         // Sorted internal indexes are independent of client-requested CSV order.
         List<SchemaField> fields = new ArrayList<>(definitions.values());
-        return new DiagSchema(port, strict, maxRateHz, fields);
+        return new DiagSchema(port, strict, maxRateHz, fields, graphs);
     }
 
     private static void checkKeys(JSONObject object, String... allowed) {

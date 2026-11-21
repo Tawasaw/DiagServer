@@ -10,8 +10,13 @@ public class SchemaDiagBus implements DiagBus {
     private boolean errorLogged;
 
     public SchemaDiagBus(HardwareMap hardwareMap, String schemaPathOrJson) {
+        this(hardwareMap, schemaPathOrJson, null);
+    }
+
+    public SchemaDiagBus(HardwareMap hardwareMap, String schemaPathOrJson,
+            LimelightTunnelManager camera) {
         ConfigRegistry config = new ConfigRegistry();
-        this.service = new SchemaDiagService(hardwareMap, schemaPathOrJson, config);
+        this.service = new SchemaDiagService(hardwareMap, schemaPathOrJson, config, camera);
         this.configRegistry = new DiaglibConfigRegistry(config);
     }
 

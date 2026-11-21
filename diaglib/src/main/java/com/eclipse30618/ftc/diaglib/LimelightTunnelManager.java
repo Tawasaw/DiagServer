@@ -47,6 +47,11 @@ public final class LimelightTunnelManager implements AutoCloseable {
                 new LimelightTunnel(DEFAULT_BIND_HOST, API_PORT, DEFAULT_USB_IP, API_PORT));
     }
 
+    org.json.JSONObject describe() throws org.json.JSONException {
+        return new org.json.JSONObject().put("kind", "limelight")
+                .put("preview_port", DATA_PORT).put("record_port", RAW_MJPEG_PORT);
+    }
+
     /**
      * Start all tunnels (GUI, annotated video, raw video, websocket, and API).
      */

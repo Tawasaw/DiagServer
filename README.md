@@ -17,7 +17,7 @@ Add the library dependency in `TeamCode/build.gradle`:
 
 ```gradle
 dependencies {
-    implementation "com.eclipse30618.ftc:diaglib:0.2.0"
+    implementation "com.eclipse30618.ftc:diaglib:0.3.0"
 }
 ```
 
@@ -135,3 +135,13 @@ commanded to the LED. Use the same JSON schema on robot and dashboard.
 the diagnostics connection thread changes it while the OpMode reads it. The loop
 uses a local copy so the LED command and published value match. This is the
 commanded value, not measured light output. STOP closes diagnostics.
+
+## Dashboard discovery
+
+Send `HOWDY` before subscribing. The reply is one `DESCRIBE ` line containing
+JSON with protocol_version 2, max_rate_hz, fields in SUB ALL order, graphs,
+registered controls, and cameras. Graph titles come from existing groups.
+Groups with graph set to false still contribute telemetry fields. Controls
+come from the running config registry. To advertise camera endpoints, pass
+the OpMode's LimelightTunnelManager as the third argument to SchemaDiagBus.
+Both ports use the diagnostics host. Legacy HELLO and FIELDS remain supported.

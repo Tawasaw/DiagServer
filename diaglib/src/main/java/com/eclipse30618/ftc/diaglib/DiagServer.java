@@ -10,6 +10,9 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.List;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -17,12 +20,14 @@ import java.util.concurrent.CopyOnWriteArrayList;
  *
  * Client -> Server:
  * HELLO
+ * HOWDY
  * SUB field1,field2 rate=20
  * SUB ALL rate=20
  * LISTCFG
  * SET key=value
  *
  * Server -> Client:
+ * DESCRIBE {protocol_version,max_rate_hz,fields,graphs,controls,cameras}
  * FIELDS name,type,unit;name,type,unit;...
  * CFG name,type,min,max;name,type,min,max;...
  * OK
@@ -33,6 +38,9 @@ public class DiagServer implements AutoCloseable {
     private final FieldCatalog catalog;
     private final ConfigRegistry configRegistry;
     private final int minIntervalMs;
+    private final int maxRateHz;
+    private final DiagSchema schema;
+    private final LimelightTunnelManager camera;
     private final CopyOnWriteArrayList<ClientSession> sessions = new CopyOnWriteArrayList<>();
     private volatile boolean running;
     private volatile DiagSnapshot latestSnapshot;
@@ -59,11 +67,19 @@ public class DiagServer implements AutoCloseable {
      */
     public DiagServer(
             int port, FieldCatalog catalog, ConfigRegistry configRegistry, int maxRateHz) {
+        this(port, catalog, configRegistry, maxRateHz, null, null);
+    }
+
+    DiagServer(int port, FieldCatalog catalog, ConfigRegistry configRegistry, int maxRateHz,
+            DiagSchema schema, LimelightTunnelManager camera) {
+        this.schema = schema;
+        this.camera = camera;
+        this.maxRateHz = Math.max(1, maxRateHz);
         // Save the port and the list of fields the client can request.
         this.port = port;
         this.catalog = catalog;
         this.configRegistry = configRegistry;
-        this.minIntervalMs = Math.max(1, 1000 / Math.max(1, maxRateHz));
+        this.minIntervalMs = Math.max(1, 1000 / this.maxRateHz);
         this.latestSnapshot = DiagSnapshot.empty(catalog.size());
     }
 
@@ -212,6 +228,10 @@ public class DiagServer implements AutoCloseable {
             if (line.isEmpty()) {
                 return;
             }
+            if (line.equalsIgnoreCase("HOWDY")) {
+                sendDescription();
+                return;
+            }
             if (line.equalsIgnoreCase("HELLO") || line.equalsIgnoreCase("FIELDS")) {
                 // Send the list of all available fields.
                 sendFields();
@@ -235,6 +255,41 @@ public class DiagServer implements AutoCloseable {
                 return;
             }
             sendLine("ERR unknown");
+        }
+
+        private void sendDescription() throws IOException {
+            JSONObject descriptor = new JSONObject();
+            try {
+                JSONArray fields = new JSONArray();
+                for (SchemaField field : catalog.getFields()) {
+                    fields.put(new JSONObject().put("name", field.name).put("type", field.type)
+                            .put("unit", field.unit == null ? "" : field.unit));
+                }
+                JSONArray controls = new JSONArray();
+                if (configRegistry != null) {
+                    for (ConfigRegistry.ConfigEntry entry : configRegistry.list()) {
+                        controls.put(new JSONObject().put("name", entry.getName())
+                                .put("type", entry.getType())
+                                .put("min", jsonBound(entry.getMin()))
+                                .put("max", jsonBound(entry.getMax())));
+                    }
+                }
+                JSONArray cameras = new JSONArray();
+                if (camera != null) cameras.put(camera.describe());
+                descriptor.put("protocol_version", 2)
+                        .put("max_rate_hz", maxRateHz)
+                        .put("fields", fields)
+                        .put("graphs", schema == null ? new JSONArray() : schema.getGraphs())
+                        .put("controls", controls)
+                        .put("cameras", cameras);
+            } catch (JSONException e) {
+                throw new IOException("Cannot encode dashboard descriptor", e);
+            }
+            sendLine("DESCRIBE " + descriptor.toString());
+        }
+
+        private Object jsonBound(double value) {
+            return Double.isNaN(value) || Double.isInfinite(value) ? JSONObject.NULL : value;
         }
 
         private void sendFields() throws IOException {
